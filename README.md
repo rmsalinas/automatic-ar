@@ -1,6 +1,6 @@
 # automatic-ar
 
-Requirements:
+Tested Prerequisites:
 
 CMake >= 2.8
 
