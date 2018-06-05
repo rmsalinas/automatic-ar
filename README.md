@@ -2,13 +2,13 @@
 
 ## Tested* prerequisites:
 
-CMake 2.8
+* CMake 2.8
 
-[Aruco](https://www.uco.es/investiga/grupos/ava/node/26) 3.0.0 
+* [Aruco](https://www.uco.es/investiga/grupos/ava/node/26) 3.0.0 
 
-OpenCV 3.2.0
+* OpenCV 3.2.0
 
-PCL 1.7.2 (Optional, for point cloud I/O and visualization)
+* PCL 1.7.2 (Optional, for point cloud I/O and visualization)
 
 *The project might work with older dependencies however we have not tested.
 
