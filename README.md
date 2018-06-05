@@ -4,7 +4,7 @@
 
 CMake 2.8
 
-Aruco 3.0.0
+[Aruco](https://www.uco.es/investiga/grupos/ava/node/26) 3.0.0 
 
 OpenCV 3.2.0
 
