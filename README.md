@@ -1,6 +1,6 @@
 # automatic-ar
 
-## Tested* Prerequisites:
+## Tested* prerequisites:
 
 CMake 2.8
 
@@ -12,7 +12,9 @@ PCL 1.7.2 (Optional, for point cloud I/O and visualization)
 
 *The project might work with older dependencies however however we have not tested if it does.
 
-## Sample Data
+## Sample data
 You can download sample data sets from [here](https://mega.nz/#F!riAgQY7J!7VbP7yOmsRKvFbkLtdUE1A).
+
+## How to use the program with sample data
 
 
