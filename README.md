@@ -8,8 +8,8 @@ Aruco 3.0.0
 
 OpenCV 3.2.0
 
-(The project might worlk with older dependencies however however we have not tested as such.)
+PCL 1.7.2 (Optional, for visualization)
 
-## Tested* Optional Dependencies:
+*The project might worlk with older dependencies however however we have not tested as such.
 
-PCL 1.7.2 (For visualization)
+
