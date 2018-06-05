@@ -16,5 +16,8 @@
 You can download sample data sets from [here](https://mega.nz/#F!riAgQY7J!7VbP7yOmsRKvFbkLtdUE1A).
 
 ## How to use the program with sample data
+1. Unzip the desired data set.
+2. Do the marker detection.
+3. Apply the algorithm.
 
 
