@@ -17,7 +17,11 @@ You can download sample data sets from [here](https://mega.nz/#F!riAgQY7J!7VbP7y
 
 ## How to use the program with sample data
 1. Unzip the desired data set.
-2. Do the marker detection.
-3. Apply the algorithm.
+`unzip pentagonal.zip`
+2. Do the marker detection by giving the path of the data set to `detect_markers`:
+`detect_markers pentagonal`
+3. Apply the algorithm:
+`find_solution pentagonal 0.04`
+Here `0.04` is the size of each marker in meters.
 
 
