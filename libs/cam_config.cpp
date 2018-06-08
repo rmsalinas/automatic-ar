@@ -57,7 +57,7 @@ bool CamConfig::read_from_file(std::string path){
     if(file["image_height"].isNone())
         return false;
     else
-        file["image_weight"]>>image_size.height;
+        file["image_height"]>>image_size.height;
 
     if(file["image_width"].isNone())
         return false;

@@ -49,8 +49,6 @@ public:
 #ifdef PCL
     void visualize_sequence(std::string path="", size_t num_total_frames=0);
 
-
-
     static void draw_3d_line_points(cv::Mat start, cv::Mat end, int steps, cv::Scalar color, pcl::PointCloud<pcl::PointXYZRGB>& point_cloud, cv::Scalar end_color=cv::Scalar(-1,-1,-1));
     static void visualize_camera(int cam_num, const cv::Mat cam_mat, cv::Mat T, const cv::Size im_size,double Z, pcl::PointCloud<pcl::PointXYZRGB>& point_cloud);
     static void visualize_cameras(const std::vector<CamConfig> &cam_confs, const std::vector<cv::Mat> &transforms_to_root_cam, const std::vector<int> &index2id, float Z, pcl::PointCloud<pcl::PointXYZRGB>& point_cloud_cameras);
@@ -69,12 +67,13 @@ public:
 
     static void serialize_marker(aruco::Marker marker, std::ostream& output);
     static void deserialize_marker(std::istream& input, aruco::Marker& marker);
-    static std::vector<std::vector<std::vector<aruco::Marker>>> read_detections_file(std::string path, const std::vector<int> &subseqs=std::vector<int>());
+
     static void write_detections_file(std::string path, std::vector<std::vector<std::vector<aruco::Marker>>> &seq);
 
     size_t get_root_cam();
     size_t get_root_marker();
     double get_marker_size();
+    std::vector<cv::Size> get_image_sizes();
 
     struct Config{
         bool optimize_cam_poses=true;

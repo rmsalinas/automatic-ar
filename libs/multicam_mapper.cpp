@@ -4,6 +4,10 @@
 #include <fstream>
 using namespace std;
 
+std::vector<cv::Size> MultiCamMapper::get_image_sizes(){
+    return image_sizes;
+}
+
 void MultiCamMapper::set_with_huber(bool wh){
     with_huber=wh;
 }
@@ -190,54 +194,6 @@ void MultiCamMapper::overlay_coords(cv::Mat img, cv::Mat to_ref_cam, float size,
     }
 }
 
-vector<vector<vector<aruco::Marker>>> MultiCamMapper::read_detections_file(string path,const vector<int> &subseqs){
-    ifstream detections_file(path,ios_base::binary);
-
-    if(!detections_file.is_open())
-        throw runtime_error("Could not open to read the detection file at: "+path);
-
-    std::vector<std::vector<std::vector<aruco::Marker>>> all_markers;
-
-    size_t num_cams;
-    detections_file.read((char*)&num_cams,sizeof num_cams);
-    if(!(detections_file.gcount()<sizeof num_cams))
-        for(int frame_num=0;;frame_num++){
-            std::vector<std::vector<aruco::Marker>> frame_markers(num_cams);
-            bool end_of_data=false;
-
-            for(int cam=0;cam<num_cams;cam++){//loop over all possible cameras
-                size_t num_cam_markers;
-                detections_file.read((char*)&num_cam_markers,sizeof num_cam_markers);//read the number of markers for the first camera
-
-                if(detections_file.gcount()<sizeof num_cam_markers){//if end of file is reached exit the loop
-                    end_of_data=true;
-                    break;
-                }
-                frame_markers[cam].resize(num_cam_markers);
-
-                for(int m=0;m<num_cam_markers;m++)
-                    MultiCamMapper::deserialize_marker(detections_file,frame_markers[cam][m]);
-
-            }
-            if(end_of_data)
-                break;
-            all_markers.push_back(frame_markers);
-        }
-
-    if(!subseqs.empty()){
-        int prev_last_frame=-1;
-        for(size_t i=0;i+1<subseqs.size();i+=2){
-            int first_frame=subseqs[i];
-            for(int f=prev_last_frame+1;f<first_frame;f++)
-                for(int c=0;c<num_cams;c++)
-                    all_markers[f][c].clear();
-            prev_last_frame=subseqs[i+1];
-        }
-    }
-
-    return all_markers;
-}
-
 void MultiCamMapper::write_detections_file(string path, vector<vector<vector<aruco::Marker>>> &input){
     ofstream detections_file(path,ios_base::binary);
 
@@ -320,8 +276,8 @@ MultiCamMapper::MultiCamMapper(size_t root_c, const std::map<int, cv::Mat> &T_to
     size_t cam_index=0;
     for(auto it=T_to_root_cam.begin();it!=T_to_root_cam.end();it++,cam_index++){
         int cam_id=it->first;
-        cam_configs[cam_id].getCamMat().copyTo(mat_arrays.cam_mats.v[cam_index]);
-        cam_configs[cam_id].getDistCoeffs().copyTo(mat_arrays.dist_coeffs.v[cam_index]);
+        cam_configs[cam_id].getCamMat().convertTo(mat_arrays.cam_mats.v[cam_index],CV_64FC1);
+        cam_configs[cam_id].getDistCoeffs().convertTo(mat_arrays.dist_coeffs.v[cam_index],CV_64FC1);
         image_sizes[cam_index]=cam_configs[cam_id].getImageSize();
         mat_arrays.cam_mats.id[cam_index]=cam_id;
         mat_arrays.cam_mats.m[cam_id]=cam_index;
@@ -422,7 +378,7 @@ void MultiCamMapper::optCallBack(const  ucoslam::SparseLevMarq<double>::eVector 
     if (hubberDelta>2.5){
         hubberDelta-= 7.5/500;
     }
-    cerr<<"hubberDelta="<<hubberDelta<<endl;
+    //cerr<<"hubberDelta="<<hubberDelta<<endl;
 }
 
 void MultiCamMapper::solve(){
@@ -1251,20 +1207,23 @@ void MultiCamMapper::visualize_camera(int cam_num, const cv::Mat cam_mat, cv::Ma
     points.push_back(cv::Mat(cv::Vec3f(im_size.width-1,0,1)).t());
     points.push_back(cv::Mat(cv::Vec3f(0,im_size.height-1,1)).t());
     points.push_back(cv::Mat(cv::Vec3f(im_size.width-1,im_size.height-1,1)).t());
+
     //pixels to be visualized
     for(int r=0;r<num_image.rows;r++)
         for(int c=0;c<num_image.cols;c++)
             if(num_image.at<uchar>(r,c)==255)
                 points.push_back(cv::Mat(cv::Vec3f(c,r,1)).t());
 
-    cam_mat.convertTo(cam_mat,CV_32FC1);
-    points=Z*cam_mat.inv()*points.t();
+    cv::Mat cam_mat_32;
+
+    cam_mat.convertTo(cam_mat_32,CV_32FC1);
+    points=Z*cam_mat_32.inv()*points.t();
 
     cv::Mat T;
     T_in.convertTo(T,CV_32FC1);
     points.push_back(cv::Mat::ones(1,points.cols,CV_32FC1));
     points=T*points;
-    cv::Scalar color(200,0,0);
+    cv::Scalar color(0,0,255);
 
     draw_3d_line_points(points.col(0),points.col(1),100,color,point_cloud,color);
     draw_3d_line_points(points.col(0),points.col(2),100,color,point_cloud,color);
@@ -1322,7 +1281,7 @@ void MultiCamMapper::visualize_marker(int marker_id,const cv::Mat T_in,float mar
     points.push_back(cv::Mat::ones(1,points.cols,CV_32FC1));
     points=T*points;
 
-    cv::Scalar color(0,200,0);
+    cv::Scalar color(0,255,0);
     draw_3d_line_points(points.col(0),points.col(1),100,color,point_cloud,color);
     draw_3d_line_points(points.col(1),points.col(2),100,color,point_cloud,color);
     draw_3d_line_points(points.col(2),points.col(3),100,color,point_cloud,color);
@@ -1330,7 +1289,6 @@ void MultiCamMapper::visualize_marker(int marker_id,const cv::Mat T_in,float mar
 
     for(int i=4;i<points.cols;i++){
         pcl::PointXYZRGB point(color[0],color[1],color[2]);
-        point.a=255;
         point.x=points.at<float>(0,i);
         point.y=points.at<float>(1,i);
         point.z=points.at<float>(2,i);

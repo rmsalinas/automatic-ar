@@ -8,72 +8,15 @@
 #include <algorithm>
 #include <cstdio>
 #include "multicam_mapper.h"
-#include "filesystem.h"
+#include "dataset.h"
 
 using namespace std;
-using namespace filesystem;
 
 int print_usage(char* argv0){
     cout<<"Usage: "<<argv0<<" <path_to_data_folder> [-d <dictionary>]"<<endl
         <<"The default values:"<<endl
         <<"\t<dictionary>: ARUCO_MIP_36h12"<<endl;
     return -1;
-}
-
-bool string_is_uint(string s){
-    if(s.size()==0)
-        return false;
-    for(char c: s)
-        if (!isdigit(c))
-            return false;
-    return true;
-}
-
-void get_frame_nums(size_t num_cams, string folder_path, vector<set<size_t>>& frame_nums, set<size_t>& all_frames){
-    frame_nums.resize(num_cams);
-
-    for(auto cam_num=0;cam_num<num_cams;cam_num++){
-        string cam_dir_path=folder_path+"/"+to_string(cam_num);
-        vector<string> files_list=get_files_list(cam_dir_path);
-        sort(files_list.begin(),files_list.end());
-        for(string file_name : files_list){
-            size_t frame_num=0;
-            if(sscanf(file_name.c_str(),"%lu.png",&frame_num)==1){
-                frame_nums[cam_num].insert(frame_num);
-                all_frames.insert(frame_num);
-            }
-        }
-    }
-}
-
-void get_frame(size_t frame_num, string folder_path, vector<set<size_t>> &frame_nums, vector<cv::Mat> &frames){
-    size_t num_cams=frame_nums.size();
-    frames.resize(num_cams);
-
-    for(size_t cam=0;cam<num_cams;cam++){
-        string cam_dir_path=folder_path+"/"+to_string(cam);
-
-        if(frame_nums[cam].count(frame_num)>0)//the cameras has that frame
-            frames[cam]=cv::imread(cam_dir_path+"/"+to_string(frame_num)+".png");
-    }
-}
-
-size_t get_num_cams(string folder_path){
-
-    vector<string> dirs_list=get_dirs_list(folder_path);
-
-    int num_cams=-1;
-    for(size_t i=0;i<dirs_list.size();i++){
-        cout<<dirs_list[i]<<endl;
-        if(string_is_uint(dirs_list[i])){
-            int dir_num=stoi(dirs_list[i]);
-            if(dir_num>num_cams)
-                num_cams=dir_num;
-        }
-    }
-
-    num_cams++;
-    return num_cams;
 }
 
 int main(int argc, char* argv[]){
@@ -94,9 +37,8 @@ int main(int argc, char* argv[]){
 
     try{
         string folder_path = argv[1];
-
-        size_t num_cams=get_num_cams(folder_path);
-
+        Dataset dataset(folder_path);
+        size_t num_cams=dataset.get_num_cams();
         string output_file_name=folder_path+"/aruco.detections";
 
         vector<aruco::MarkerDetector> detector(num_cams);
@@ -106,10 +48,6 @@ int main(int argc, char* argv[]){
             detector[i].getParameters().setCornerRefinementMethod(aruco::CornerRefinementMethod::CORNER_LINES);
         }
 
-        vector<set<size_t>> frame_nums;
-        set<size_t> all_frames;
-        get_frame_nums(num_cams,folder_path,frame_nums,all_frames);
-        cout<<"all frames: "<<all_frames.size()<<endl;
         ofstream output_file(output_file_name,ios_base::binary);
         if(!output_file.is_open())
             throw runtime_error("Could not open a file to write output at: "+output_file_name);
@@ -118,12 +56,15 @@ int main(int argc, char* argv[]){
 
         const int min_detections_per_marker=1;
 
+        std::set<size_t> frame_nums;
+        dataset.get_frame_nums(frame_nums);
+
         std::set<int> marker_ids;
         vector<cv::Mat> frames;
-        for( size_t frame_num : all_frames){
+        for( size_t frame_num : frame_nums){
             cout<<"frame num:"<<frame_num<<endl;
             auto start=chrono::system_clock::now();
-            get_frame(frame_num,folder_path,frame_nums,frames);
+            dataset.get_frame(frame_num,frames);
             map<int,int> markers_count;
             vector<vector<aruco::Marker>> cam_markers(num_cams);
             for(size_t cam=0;cam<num_cams;cam++){
