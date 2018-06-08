@@ -67,7 +67,7 @@ overlay pentagonal
 You can also save overlayed visualization in a video in the dataset folder by using an extra option:
 ```shell
 overlay pentagonal -save-video
-```shell
+```
 
 ## Dataset format
 

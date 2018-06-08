@@ -46,6 +46,8 @@ public:
 
     void write_text_solution_file(std::string text_path);
 
+    static std::vector<std::vector<std::vector<aruco::Marker>>> read_detections_file(std::string path, const std::vector<int> &subseqs=std::vector<int>());
+
 #ifdef PCL
     void visualize_sequence(std::string path="", size_t num_total_frames=0);
 

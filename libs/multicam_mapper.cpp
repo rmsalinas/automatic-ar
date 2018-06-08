@@ -4,6 +4,55 @@
 #include <fstream>
 using namespace std;
 
+vector<vector<vector<aruco::Marker>>> MultiCamMapper::read_detections_file(string path,const vector<int> &subseqs){
+    ifstream detections_file(path,ios_base::binary);
+
+    if(!detections_file.is_open())
+        throw runtime_error("Could not open to read the detection file at: "+path);
+
+    std::vector<std::vector<std::vector<aruco::Marker>>> all_markers;
+
+    size_t num_cams;
+    detections_file.read((char*)&num_cams,sizeof num_cams);
+    if(!(detections_file.gcount()<sizeof num_cams))
+        for(int frame_num=0;;frame_num++){
+            std::vector<std::vector<aruco::Marker>> frame_markers(num_cams);
+            bool end_of_data=false;
+
+            for(int cam=0;cam<num_cams;cam++){//loop over all possible cameras
+                size_t num_cam_markers;
+                detections_file.read((char*)&num_cam_markers,sizeof num_cam_markers);//read the number of markers for the first camera
+
+                if(detections_file.gcount()<sizeof num_cam_markers){//if end of file is reached exit the loop
+                    end_of_data=true;
+                    break;
+                }
+                frame_markers[cam].resize(num_cam_markers);
+
+                for(int m=0;m<num_cam_markers;m++)
+                    MultiCamMapper::deserialize_marker(detections_file,frame_markers[cam][m]);
+
+            }
+            if(end_of_data)
+                break;
+            all_markers.push_back(frame_markers);
+        }
+
+    if(!subseqs.empty()){
+        int prev_last_frame=-1;
+        for(size_t i=0;i+1<subseqs.size();i+=2){
+            int first_frame=subseqs[i];
+            for(int f=prev_last_frame+1;f<first_frame;f++)
+                for(int c=0;c<num_cams;c++)
+                    all_markers[f][c].clear();
+            prev_last_frame=subseqs[i+1];
+        }
+    }
+
+    return all_markers;
+}
+
+
 std::vector<cv::Size> MultiCamMapper::get_image_sizes(){
     return image_sizes;
 }

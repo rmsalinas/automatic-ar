@@ -103,8 +103,7 @@ int main(int argc, char*argv[])
 
         vector<CamConfig> cam_configs=CamConfig::read_cam_configs(folder_path);
 
-
-
+        vector<vector<vector<aruco::Marker>>> detections;
 
         if(use_subseqs){
             auto subseqs=MultiCamMapper::read_subseqs(folder_path+"/subseqs.txt");
@@ -170,8 +169,8 @@ int main(int argc, char*argv[])
 
             frame_detections[frame_num]=pose_estimations_cam;
             if(!tracking_only){
-                fill_transformation_sets(transform_type::camera,pose_estimations_cam,transformation_sets_cam);
-                fill_transformation_sets(transform_type::marker,pose_estimations_marker,transformation_sets_marker);
+                //fill_transformation_sets(transform_type::camera,pose_estimations_cam,transformation_sets_cam);
+                //fill_transformation_sets(transform_type::marker,pose_estimations_marker,transformation_sets_marker);
             }
         }
 
@@ -219,8 +218,8 @@ int main(int argc, char*argv[])
             cout<<"Finding the best transformations.."<<endl;
             map<int, map<int, pair<cv::Mat,double>>> best_transforms_cam;
             map<int, map<int, pair<cv::Mat,double>>> best_transforms_marker;
-            find_best_transformations(marker_size,transformation_sets_cam,best_transforms_cam);
-            find_best_transformations(marker_size,transformation_sets_marker,best_transforms_marker);
+            //find_best_transformations(marker_size,transformation_sets_cam,best_transforms_cam);
+            //find_best_transformations(marker_size,transformation_sets_marker,best_transforms_marker);
 
 
             map<int, map<int, pair<cv::Mat, double>>> transforms_cam,transforms_marker;
@@ -247,13 +246,13 @@ int main(int argc, char*argv[])
 //            pcl::io::savePCDFile(folder_path + "/markers_cloud.pcd",point_cloud_markers);
 //            return 0;
 
-            make_mst(root_cam,cam_ids,transforms_cam,cam_tree);
-            make_mst(root_marker,marker_ids,transforms_marker,marker_tree);
+            //make_mst(root_cam,cam_ids,transforms_cam,cam_tree);
+            //make_mst(root_marker,marker_ids,transforms_marker,marker_tree);
 
             cout<<"Finding the transformations to the reference camera.."<<endl;
-            find_transforms_to_root(root_cam,cam_tree,transforms_cam,transforms_to_root_cam);
+            //find_transforms_to_root(root_cam,cam_tree,transforms_cam,transforms_to_root_cam);
             cout<<"Finding the transformations to the reference marker.."<<endl;
-            find_transforms_to_root(root_marker,marker_tree,transforms_marker,transforms_to_root_marker);
+            //find_transforms_to_root(root_marker,marker_tree,transforms_marker,transforms_to_root_marker);
 
             cout<<"Visualizing the camera positions in the point cloud.."<<endl;
 //            //debug
@@ -296,9 +295,9 @@ int main(int argc, char*argv[])
             cout<<"\r"<<setw(3)<<frame;
             cout.flush();
             vector<tuple<cv::Mat,cv::Mat,cv::Mat,double>> transformation_set;
-            fill_transformation_set(it->second,transforms_to_root_cam,transforms_to_root_marker,transformation_set);
+            //fill_transformation_set(it->second,transforms_to_root_cam,transforms_to_root_marker,transformation_set);
             double min_err;
-            int best_transform_index=find_best_transformation(marker_size,transformation_set,min_err);
+            int best_transform_index;//=find_best_transformation(marker_size,transformation_set,min_err);
             if(best_transform_index >= 0)
                 best_object_transforms[frame]=get<0>(transformation_set[best_transform_index]);
         }

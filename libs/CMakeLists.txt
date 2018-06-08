@@ -1,7 +1,7 @@
 add_library(filesystem filesystem.cpp)
 
 add_library(cam_config cam_config.cpp)
-#target_link_libraries(cam_config filesystem)
+target_link_libraries(cam_config filesystem)
 
 add_library(multicam_mapper multicam_mapper.cpp)
 

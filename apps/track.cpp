@@ -18,9 +18,9 @@ int main(int argc, char *argv[]){
     string data_folder=argv[1];
     string solution_file_path=argv[2];
 
-    size_t num_cams=dataset.get_num_cams();
+    size_t num_cams;//=dataset.get_num_cams();
     set<size_t> frame_nums;
-    dataset.get_frame_nums(frame_nums);
+    //dataset.get_frame_nums(frame_nums);
 
     Dataset dataset(data_folder);
     ImageArrayDetector iad(num_cams);

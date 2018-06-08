@@ -33,7 +33,7 @@ class Initializer
 
 public:
     Initializer();
-    static std::vector<std::vector<std::vector<aruco::Marker>>> read_detections_file(std::string path, const std::vector<int> &subseqs=std::vector<int>());
+
 
 };
 

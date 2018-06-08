@@ -8,4 +8,4 @@ add_executable(overlay overlay.cpp)
 target_link_libraries(overlay multicam_mapper dataset cam_config aruco ${pcl_libs} ${OpenCV_LIBS})
 
 add_executable(track track.cpp)
-target_link_libraries(track multicam_mapper dataset cam_config aruco ${pcl_libs} ${OpenCV_LIBS})
+target_link_libraries(track multicam_mapper dataset cam_config image_array_detector aruco ${pcl_libs} ${OpenCV_LIBS})
