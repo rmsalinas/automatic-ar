@@ -283,7 +283,7 @@ void  SparseLevMarq<T>::mult(const Eigen::SparseMatrix<T> &lhs, const Eigen::Spa
 
     // we compute each column of the result, in parallel after the other
 #pragma omp parallel for
-    for (uint32_t j=0; j<cols; ++j)
+    for (int j=0; j<cols; ++j)
     {
         int tid=omp_get_thread_num();
         omp_container[tid].push_back( std::make_pair(j,RowVal()) );

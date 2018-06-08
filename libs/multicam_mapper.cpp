@@ -662,7 +662,7 @@ void MultiCamMapper::jacobian_function(const ucoslam::SparseLevMarq<double>::eVe
     if(config.optimize_cam_poses){
         elems.resize(num_cameras);
 #pragma omp parallel for
-        for(size_t cam_index=0;cam_index<num_cameras;cam_index++){
+        for(int cam_index=0;cam_index<num_cameras;cam_index++){
             if(ma.transforms_to_root_cam.id[cam_index]==root_cam)
                 continue;
             obtain_transformation_derivs(ma,input,param_type::camera,cam_index,param_offset,J,elems[cam_index]);
@@ -676,7 +676,7 @@ void MultiCamMapper::jacobian_function(const ucoslam::SparseLevMarq<double>::eVe
     if(config.optimize_marker_poses){
         elems.resize(num_markers);
 #pragma omp parallel for
-        for(size_t marker_index=0;marker_index<num_markers;marker_index++){
+        for(int marker_index=0;marker_index<num_markers;marker_index++){
             if(ma.transforms_to_root_marker.id[marker_index]==root_marker)
                 continue;
             obtain_transformation_derivs(ma,input,param_type::marker,marker_index,param_offset,J,elems[marker_index]);
@@ -690,7 +690,7 @@ void MultiCamMapper::jacobian_function(const ucoslam::SparseLevMarq<double>::eVe
     if(config.optimize_object_poses){
         elems.resize(num_frames);
 #pragma omp parallel for
-        for(size_t frame_index=0;frame_index<num_frames;frame_index++){
+        for(int frame_index=0;frame_index<num_frames;frame_index++){
             obtain_transformation_derivs(ma,input,param_type::object,frame_index,param_offset,J,elems[frame_index]);
         }
         for(size_t i=0;i<elems.size();i++)
@@ -702,7 +702,7 @@ void MultiCamMapper::jacobian_function(const ucoslam::SparseLevMarq<double>::eVe
     if(config.optimize_cam_intrinsics){
         elems.resize(num_cameras);
 #pragma omp parallel for
-        for(size_t cam_index=0;cam_index<num_cameras;cam_index++){
+        for(int cam_index=0;cam_index<num_cameras;cam_index++){
             obtain_transformation_derivs(ma,input,param_type::intrinsics,cam_index,param_offset,J,elems[cam_index]);
         }
         for(size_t i=0;i<elems.size();i++)
